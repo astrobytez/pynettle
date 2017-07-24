@@ -50,10 +50,9 @@ class ChaCha20(object):
     def new_key(p):
         """
         Create a new 32 byte -- 256 bit key.
-        The new key is the hash of an input password string combined with a salt.
-        The salt cannot change across deployments or key generation will fail.
+        The new key is the hash of an input password string.
         """
-        p = bytes((ord(i) for i in p)) + b'salt'
+        p = bytes((ord(i) for i in p))
         k = create_string_buffer(32)
         k.raw = sha256(p).digest()
         return k
