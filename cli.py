@@ -176,7 +176,7 @@ def encrypt(safe, password, file_list):
             :param x: bytes to encrypt
             :return: the hash of the input bytes and the encrypted bytes
             """
-            return sha256(x).digest(), box.encrypt(key.raw, x).raw
+            return sha256(x).digest(), box.encrypt(key, x).raw
 
         file_hash = process_file(file_handle,
                                  out_file_handle,
@@ -222,7 +222,7 @@ def decrypt(safe, password, file_list):
             :param x: bytes to decrypt
             :return: the hash of the decrypted bytes and the decrypted bytes
             """
-            output = box.decrypt(key.raw, x).raw
+            output = box.decrypt(key, x).raw
             return sha256(output).digest(), output
 
         file_hash = process_file(file_handle,

@@ -24,9 +24,9 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 # -----------------------------------
 from __future__ import division
-from os import urandom
 from ctypes import create_string_buffer
 from hashlib import sha256
+from os import urandom
 
 import chacha.api as chacha
 
@@ -67,7 +67,7 @@ class ChaCha20(object):
         # create nonce
         self.nonce = create_string_buffer(CHACHA_NONCE_SIZE)
         self.nonce.raw = urandom(CHACHA_NONCE_SIZE)
-        chacha.chacha_set_nonce(self.ctx, self.nonce.raw)
+        chacha.chacha_set_nonce(self.ctx, self.nonce)
         
     def encrypt(self, key, message):
         """
@@ -76,7 +76,7 @@ class ChaCha20(object):
         :param message: the message bytes to encrypt
         :return: encrypted output ctypes buffer
         """
-        assert isinstance(key, bytes)
+        assert isinstance(key.raw, bytes)
         chacha.chacha_set_key(self.ctx, key)
         return chacha.chacha20_encrypt(self.ctx, message)
 
@@ -87,6 +87,6 @@ class ChaCha20(object):
         :param message: the message bytes to decrypt
         :return: decrypted output ctypes buffer
         """
-        assert isinstance(key, bytes)
+        assert isinstance(key.raw, bytes)
         chacha.chacha_set_key(self.ctx, key)
         return chacha.chacha20_decrypt(self.ctx, message)

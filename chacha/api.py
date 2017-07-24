@@ -15,24 +15,32 @@ class chacha_ctx(Structure):
 # Hooks to nettle library
 def chacha_set_key(ctx, key):
     assert isinstance(ctx, chacha_ctx)
-    assert len(key) in (32,)  # 256 bits
-    assert isinstance(key, bytes)
-    nettle.nettle_chacha_set_key(ctx, key)
+    assert len(key.raw) in (32,)  # 256 bits
+    assert isinstance(key.raw, bytes)
+    nettle.nettle_chacha_set_key(
+        byref(ctx),
+        byref(key))
 
 
 def chacha_set_nonce(ctx, nonce):
     assert isinstance(ctx, chacha_ctx)
-    assert len(nonce) in (8,)  # 64 bits
-    assert isinstance(nonce, bytes)
-    nettle.nettle_chacha_set_nonce(ctx, nonce)
+    assert len(nonce.raw) in (8,)  # 64 bits
+    assert isinstance(nonce.raw, bytes)
+    nettle.nettle_chacha_set_nonce(
+        byref(ctx),
+        byref(nonce))
 
 
 def chacha_crypt(ctx, length, dst, src):
     assert isinstance(ctx, chacha_ctx)
     assert isinstance(length, c_size_t)
-    assert isinstance(dst, bytes)
-    assert isinstance(src, bytes)
-    nettle.nettle_chacha_crypt(ctx, length, dst, src)
+    assert isinstance(dst.raw, bytes)
+    assert isinstance(src.raw, bytes)
+    nettle.nettle_chacha_crypt(
+        byref(ctx),
+        length,
+        byref(dst),
+        byref(src))
 
 
 # Python api for buffer handling
@@ -45,11 +53,11 @@ def chacha20_encrypt(ctx, buff_i):
     """
     buff_o = create_string_buffer(len(buff_i))
     chacha_crypt(
-        byref(ctx),
-        byref(buff_i),
-        byref(buff_o),
+        ctx,
         c_size_t(
-            len(buff_i)))
+            len(buff_i)),
+        buff_o,
+        buff_i)
     return buff_o
 
 # Python api for buffer handling
@@ -62,9 +70,9 @@ def chacha20_decrypt(ctx, buff_i):
     """
     buff_o = create_string_buffer(len(buff_i))
     chacha_crypt(
-        byref(ctx),
-        byref(buff_o),
-        byref(buff_i),
+        ctx,
         c_size_t(
-            len(buff_i)))
+            len(buff_i)),
+        buff_o,
+        buff_i)
     return buff_o
