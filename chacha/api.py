@@ -48,8 +48,8 @@ def chacha20_encrypt(ctx, buff_i):
     """
     encrypt a bytestream using chacha20 stream cipher
     :param ctx: a chacha20_ctx instance
-    :param buff_i: cyphertext
-    :return: bytestream
+    :param buff_i: plaintext buffer
+    :return: cyphertext buffer
     """
     buff_o = create_string_buffer(len(buff_i))
     chacha_crypt(
@@ -65,8 +65,8 @@ def chacha20_decrypt(ctx, buff_i):
     """
     decrypt a bytestream using chacha20 stream cipher
     :param ctx: a chacha20_ctx instance
-    :param buff_i: cyphertext
-    :return: bytestream
+    :param buff_i: cyphertext buffer
+    :return: plaintext buffer
     """
     buff_o = create_string_buffer(len(buff_i))
     chacha_crypt(
