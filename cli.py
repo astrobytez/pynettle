@@ -4,7 +4,7 @@
 #
 # Name:       cli.py
 # Purpose:
-#    
+#
 # Author:     engineer
 #
 # Created:    23 Oct 2016 2:02 PM
@@ -154,22 +154,24 @@ def encrypt(safe, password, file_list):
     :return: None
     """
     key = ChaCha20.new_key(password)
-    box = ChaCha20()
+    nonce = ChaCha20.new_nonce()
 
     for file_name in file_list:
+
+        # create a box for encryption
+        box = ChaCha20()
 
         # open the relevant files
         file_handle, out_file_handle = open_file_handles(file_name, extension='encrypted')
 
-        # get the nonce from the box and setup
-        nonce = box.nonce.raw
-        box.setup(key)
+        # perform setup
+        box.setup(key, nonce)
 
         # a placeholder for the hash
         placeholder = bytearray(32)
 
         # initialise the header data in output file
-        write_to_file(out_file_handle, nonce + placeholder)
+        write_to_file(out_file_handle, nonce.raw + placeholder)
 
         def process_function(x):
             """
@@ -206,18 +208,20 @@ def decrypt(safe, password, file_list):
     :return: None
     """
     key = ChaCha20.new_key(password)
-    box = ChaCha20()
 
     for file_name in file_list:
+
+        # create a box for encryption
+        box = ChaCha20()
 
         # open the relevant files
         file_handle, out_file_handle = open_file_handles(file_name, extension='decrypted')
 
         # read the nonce and file hash and setup
-        box.nonce = create_string_buffer(8)  # read in nonce
-        box.nonce.raw = file_handle.read(8)
+        nonce = create_string_buffer(8)  # read in nonce
+        nonce.raw = file_handle.read(8)
         extracted_hash = file_handle.read(32)
-        box.setup(key)
+        box.setup(key, nonce)
 
         def process_function(x):
             """

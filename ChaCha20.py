@@ -44,10 +44,14 @@ class ChaCha20(object):
     """
 
     def __init__(self):
-        # create nonce
-        self.nonce = create_string_buffer(CHACHA_NONCE_SIZE)
-        self.nonce.raw = urandom(CHACHA_NONCE_SIZE)
         self.ctx = chacha.chacha_ctx()
+
+    @staticmethod
+    def new_nonce():
+        # create and set nonce and create context
+        nonce = create_string_buffer(CHACHA_NONCE_SIZE)
+        nonce.raw = urandom(CHACHA_NONCE_SIZE)
+        return nonce
 
     @staticmethod
     def new_key(p):
@@ -60,15 +64,16 @@ class ChaCha20(object):
         k.raw = sha256(p).digest()
         return k
 
-    def setup(self, key):
+    def setup(self, key, nonce):
         """
         # create context and setup nonce
         :param key: the secret key bytes to encrypt with
         :return: None
         """
         assert isinstance(key.raw, bytes)
-        chacha.chacha_set_nonce(self.ctx, self.nonce)
+        assert isinstance(nonce.raw, bytes)
         chacha.chacha_set_key(self.ctx, key)
+        chacha.chacha_set_nonce(self.ctx, nonce)
 
     def encrypt(self, message):
         """
