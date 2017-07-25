@@ -44,7 +44,10 @@ class ChaCha20(object):
     """
 
     def __init__(self):
-        self.setup()
+        # create nonce
+        self.nonce = create_string_buffer(CHACHA_NONCE_SIZE)
+        self.nonce.raw = urandom(CHACHA_NONCE_SIZE)
+        self.ctx = chacha.chacha_ctx()
 
     @staticmethod
     def new_key(p):
@@ -57,36 +60,28 @@ class ChaCha20(object):
         k.raw = sha256(p).digest()
         return k
 
-    def setup(self):
+    def setup(self, key):
         """
         # create context and setup nonce
+        :param key: the secret key bytes to encrypt with
         :return: None
         """
-        self.ctx = chacha.chacha_ctx()
-
-        # create nonce
-        self.nonce = create_string_buffer(CHACHA_NONCE_SIZE)
-        self.nonce.raw = urandom(CHACHA_NONCE_SIZE)
+        assert isinstance(key.raw, bytes)
         chacha.chacha_set_nonce(self.ctx, self.nonce)
-        
-    def encrypt(self, key, message):
+        chacha.chacha_set_key(self.ctx, key)
+
+    def encrypt(self, message):
         """
         encrypt message data with given key
-        :param key: the secret key bytes to encrypt with
         :param message: the message bytes to encrypt
         :return: encrypted output ctypes buffer
         """
-        assert isinstance(key.raw, bytes)
-        chacha.chacha_set_key(self.ctx, key)
         return chacha.chacha20_encrypt(self.ctx, message)
 
-    def decrypt(self, key, message):
+    def decrypt(self, message):
         """
         decrypt message data with given key
-        :param key: the secret key bytes to encrypt with
         :param message: the message bytes to decrypt
         :return: decrypted output ctypes buffer
         """
-        assert isinstance(key.raw, bytes)
-        chacha.chacha_set_key(self.ctx, key)
         return chacha.chacha20_decrypt(self.ctx, message)

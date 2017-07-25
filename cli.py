@@ -161,8 +161,9 @@ def encrypt(safe, password, file_list):
         # open the relevant files
         file_handle, out_file_handle = open_file_handles(file_name, extension='encrypted')
 
-        # get the nonce from the box
+        # get the nonce from the box and setup
         nonce = box.nonce.raw
+        box.setup(key)
 
         # a placeholder for the hash
         placeholder = bytearray(32)
@@ -176,7 +177,7 @@ def encrypt(safe, password, file_list):
             :param x: bytes to encrypt
             :return: the hash of the input bytes and the encrypted bytes
             """
-            return sha256(x).digest(), box.encrypt(key, x).raw
+            return sha256(x).digest(), box.encrypt(x).raw
 
         file_hash = process_file(file_handle,
                                  out_file_handle,
@@ -212,9 +213,11 @@ def decrypt(safe, password, file_list):
         # open the relevant files
         file_handle, out_file_handle = open_file_handles(file_name, extension='decrypted')
 
-        # read the nonce and file hash
-        box.nonce = create_string_buffer(file_handle.read(8))  # read in nonce
+        # read the nonce and file hash and setup
+        box.nonce = create_string_buffer(8)  # read in nonce
+        box.nonce.raw = file_handle.read(8)
         extracted_hash = file_handle.read(32)
+        box.setup(key)
 
         def process_function(x):
             """
@@ -222,7 +225,7 @@ def decrypt(safe, password, file_list):
             :param x: bytes to decrypt
             :return: the hash of the decrypted bytes and the decrypted bytes
             """
-            output = box.decrypt(key, x).raw
+            output = box.decrypt(x).raw
             return sha256(output).digest(), output
 
         file_hash = process_file(file_handle,
