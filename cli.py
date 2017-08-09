@@ -29,7 +29,7 @@ from hashlib import sha256
 
 import click
 
-from ChaCha20 import ChaCha20
+from chacha.ChaCha20 import ChaCha20
 
 
 def open_file_handles(file_name, extension):
