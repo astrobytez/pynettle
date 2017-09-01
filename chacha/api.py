@@ -5,6 +5,7 @@ try:
     nettle = CDLL('libnettle.so')
 except Exception as e:
     print('[-] Error: Cannot open libnettle - {}'.format(e))
+    raise
 
 
 _CHACHA_STATE_LENGTH=16*8
