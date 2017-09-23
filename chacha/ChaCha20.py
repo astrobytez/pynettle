@@ -39,8 +39,8 @@ CHACHA_NONCE96_SIZE=12
 
 class ChaCha20(object):
     """
-    Each new instance of the ChaCha20 class creates a unique nonce and thus will only
-    decrypt data that itself has encrypted.
+    ChaCha20 class exposes the mechanics to encrypt and decrypt using the underlying
+    nettle implementation of chacha20
     """
 
     def __init__(self):
