@@ -25,11 +25,23 @@
 # -----------------------------------
 from __future__ import division
 from ctypes import create_string_buffer
+from functools import partial
 from hashlib import sha256
 
 import click
 
 from chacha.ChaCha20 import ChaCha20
+
+
+def chunk(f, chunk_size=int(8192)):
+    """
+    read chunks of data from a file
+    :param f: file handle to read from
+    :param chunk_size: the size of the chunks to read
+    :return: a generator that yield pieces from the file
+    """
+    sentinel = {'rb': b'', 'r': ''}[f.mode]
+    return (piece for piece in iter(partial(f.read, chunk_size), sentinel))
 
 
 def open_file_handles(file_name, extension):
@@ -117,22 +129,6 @@ def hash_file(ctx, param, value):
         data = bytearray(value.encode('utf-8'))
         print('sha256 of {} is: {}'.format(value, sha256(data).hexdigest()))
     ctx.exit()
-
-
-def chunk(f, chunk_size=int(8192)):
-    """
-    read chunks of data from a file
-    :param f: file handle to read from
-    :param chunk_size: the size of the chunks to read
-    :return: yields the chunk of data
-    """
-    while True:
-        piece = f.read(chunk_size)
-        if not piece:
-            break
-        else:
-            yield piece
-
 
 @click.group()
 def cli():
